@@ -2,38 +2,20 @@ package bitcamp.myapp.servlet;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
 @WebServlet("/hello")
-public class HelloServlet implements Servlet {
-
-    private ServletConfig config;
+public class HelloServlet extends HttpServlet {
 
     @Override
-    public void init(ServletConfig servletConfig) throws ServletException {
-        this.config = servletConfig;
-    }
-
-    @Override
-    public ServletConfig getServletConfig() {
-        return config;
-    }
-
-    @Override
-    public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
-        servletResponse.setContentType("text/html; charset=utf-8");
-        PrintWriter out = servletResponse.getWriter();
+    public void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        res.setContentType("text/html; charset=utf-8");
+        PrintWriter out = res.getWriter();
         out.println("<html><body><h1>하하하하</h1></body></html>");
     }
 
-    @Override
-    public String getServletInfo() {
-        return "";
-    }
-
-    @Override
-    public void destroy() {
-
-    }
 }
