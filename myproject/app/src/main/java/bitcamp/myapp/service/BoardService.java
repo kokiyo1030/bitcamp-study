@@ -7,31 +7,15 @@ import bitcamp.myapp.vo.Member;
 
 import java.util.List;
 
-public class BoardService {
+public interface BoardService {
 
-    private BoardDao boardDao;
+    List<Board> list();
 
-    public BoardService(BoardDao boardDao) {
-        this.boardDao = boardDao;
-    }
+    void add(Board board);
 
-    public List<Board> list() throws Exception {
-        return boardDao.findAll();
-    }
+    Board get(int no);
 
-    public void add(Board board) throws Exception {
-        boardDao.insert(board);
-    }
+    void update(Board board);
 
-    public Board get(int no) throws Exception {
-        return boardDao.findByNo(no);
-    }
-
-    public void update(Board board) throws Exception {
-        boardDao.update(board);
-    }
-
-    public void delete(int no) throws Exception {
-        boardDao.delete(no);
-    }
+    void delete(int no);
 }
