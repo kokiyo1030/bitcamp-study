@@ -60,6 +60,16 @@ public class App {
         // 웹 애플리케이션 설정 정보를 웹 애플리케이션 환경 정보에 등록
         ctx.setResources(resources);
 
+        // JVM 종료 시 Tomcat 정상 종료
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                System.out.println("서버 종료 중...");
+                tomcat.stop();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }));
+
         // 톰캣 서버 구동
         tomcat.start();
 

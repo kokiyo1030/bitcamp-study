@@ -15,7 +15,7 @@ public class MySQLMemberDao implements MemberDao {
     }
 
     public Member findByEmailAndPassword(String email, String password) {
-        String sql = "select2" +
+        String sql = "select" +
                 "        m.member_id," +
                 "        m.name," +
                 "        m.email" +
