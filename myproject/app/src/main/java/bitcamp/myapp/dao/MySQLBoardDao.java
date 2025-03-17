@@ -1,5 +1,6 @@
 package bitcamp.myapp.dao;
 
+import bitcamp.myapp.vo.AttachedFile;
 import bitcamp.myapp.vo.Board;
 import bitcamp.myapp.vo.Member;
 
@@ -67,7 +68,11 @@ public class MySQLBoardDao implements BoardDao {
 
 
         try (Statement stmt = con.createStatement()) {
-            return stmt.executeUpdate(sql);
+            int count = stmt.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
+            ResultSet rs = stmt.getGeneratedKeys(); //자동 생성 번호 PK 값을 꺼낼 객체 준비
+            rs.next();  // 이 객체를 사용하여 서버에서 자동 생성된 PK 값을 가져온다
+            board.setNo(rs.getInt(1));  // 가져온 PK 값 중에서 첫번재 값을 꺼낸다 -> PK가 여러 컬럼으로 되어 있을 경우를 대비함
+            return count;
         } catch (Exception e) {
             throw new DaoException(e);
         }
@@ -82,9 +87,13 @@ public class MySQLBoardDao implements BoardDao {
                 "         b.create_date," +
                 "         b.view_count," +
                 "         m.member_id," +
-                "         m.name" +
+                "         m.name," +
+                "         af.af_id," +
+                "         af.filename," +
+                "         af.origin_filename" +
                 "     from ed_board b" +
                 "         inner join ed_member m on b.member_id=m.member_id" +
+                "         left outer join ed_attach_file af on b.board_id = af.board_id" +
                 "     where" +
                 "         b.board_id=" + no;
 
@@ -92,22 +101,33 @@ public class MySQLBoardDao implements BoardDao {
              ResultSet rs = stmt.executeQuery(sql);
         ) {
 
-            if (!rs.next()) {
-                return null;
+            Board board = null;
+            ArrayList<AttachedFile> attachedFiles = new ArrayList<>();
+            while (rs.next()) {
+                if (board == null) {
+                    board = new Board();
+                    board.setNo(rs.getInt("board_id"));
+                    board.setTitle(rs.getString("title"));
+                    board.setContent(rs.getString("content"));
+                    board.setCreateDate(rs.getDate("create_date"));
+                    board.setViewCount(rs.getInt("view_count"));
+
+                    Member member = new Member();
+                    member.setNo(rs.getInt("member_id"));
+                    member.setName(rs.getString("name"));
+                    board.setWriter(member);
+                }
+
+                if (rs.getInt("af_id") > 0) {
+                    AttachedFile attachedFile = new AttachedFile();
+                    attachedFile.setNo(rs.getInt("af_id"));
+                    attachedFile.setFilename(rs.getString("filename"));
+                    attachedFile.setOriginFilename(rs.getString("origin_filename"));
+                    attachedFiles.add(attachedFile);
+                }
             }
 
-            Board board = new Board();
-            board.setNo(rs.getInt("board_id"));
-            board.setTitle(rs.getString("title"));
-            board.setContent(rs.getString("content"));
-            board.setCreateDate(rs.getDate("create_date"));
-            board.setViewCount(rs.getInt("view_count"));
-
-            Member member = new Member();
-            member.setNo(rs.getInt("member_id"));
-            member.setName(rs.getString("name"));
-            board.setWriter(member);
-
+            board.setAttachedFiles(attachedFiles);
             return board;
         } catch (Exception e) {
             throw new DaoException(e);

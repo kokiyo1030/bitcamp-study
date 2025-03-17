@@ -1,17 +1,16 @@
 package bitcamp.myapp.listener;
 
-import bitcamp.myapp.dao.BoardDao;
-import bitcamp.myapp.dao.MySQLMemberDao;
-import bitcamp.myapp.dao.MemberDao;
-import bitcamp.myapp.dao.MySQLBoardDao;
+import bitcamp.myapp.dao.*;
 import bitcamp.myapp.service.*;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
+import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.Properties;
 
 @WebListener
 public class ContextLoaderListener implements ServletContextListener {
@@ -21,23 +20,28 @@ public class ContextLoaderListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         try {
+            String userHome = System.getProperty("user.home");
+            Properties appProps = new Properties();
+            appProps.load(new FileReader(userHome + "/desktop/bitcamp-study.properties"));
+
             con = DriverManager.getConnection(
-                    "jdbc:mysql://db-32e1ki-kr.vpc-pub-cdb.ntruss.com:3306/student-db",
-                    "student",
-                    "bitcamp123!@#");
+                    appProps.getProperty("jdbc.url"),
+                    appProps.getProperty("jdbc.username"),
+                    appProps.getProperty("jdbc.password"));
 
             ServletContext ctx = sce.getServletContext();
 
             MemberDao memberDao = new MySQLMemberDao(con);
             BoardDao boardDao = new MySQLBoardDao(con);
+            BoardFileDao boardFileDao = new MySQLBoardFileDao(con);
 
             MemberService memberService = new DefaultMemberService(memberDao);
             ctx.setAttribute("memberService", memberService);
 
-            BoardService boardService = new DefaultBoardService(boardDao);
+            BoardService boardService = new DefaultBoardService(boardDao, boardFileDao);
             ctx.setAttribute("boardService", boardService);
 
-            StorageService storageService = new NCPObjectStorageService();
+            StorageService storageService = new NCPObjectStorageService(appProps);
             ctx.setAttribute("storageService", storageService);
 
             System.out.println("웹애플리케이션 실행 환경 준비!");

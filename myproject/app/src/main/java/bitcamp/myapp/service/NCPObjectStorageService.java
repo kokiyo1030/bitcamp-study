@@ -1,29 +1,38 @@
 package bitcamp.myapp.service;
 
-import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 
-import java.io.ByteArrayInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Properties;
 
 public class NCPObjectStorageService implements StorageService {
-    final String endPoint = "https://kr.object.ncloudstorage.com";
-    final String regionName = "kr-standard";
-    final String accessKey = "ncp_iam_BPASKR1yeFGPyX34D8yg";
-    final String secretKey = "ncp_iam_BPKSKRZ1xZu9Jqam67jXusKzyag5iixyLf";
+    final String endPoint;
+    final String regionName;
+    final String accessKey;
+    final String secretKey;
 
-    final String bucketName = "bitcamp-70";
+    final String bucketName;
 
     final AmazonS3 s3;
 
-    public NCPObjectStorageService() {
+    public NCPObjectStorageService(Properties props) {
+        this.endPoint = props.getProperty("ncp.end-point");
+        this.regionName = props.getProperty("ncp.region-name");
+        this.accessKey = props.getProperty("ncp.access-key");
+        this.secretKey = props.getProperty("ncp.secret-key");
+        this.bucketName = props.getProperty("ncp.bucket-name");
+
         s3 = AmazonS3ClientBuilder.standard()
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, regionName))
                 .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
@@ -50,5 +59,32 @@ public class NCPObjectStorageService implements StorageService {
         }
     }
 
+    @Override
+    public void download(String filePath, OutputStream fileOut) {
+        try {
+            S3Object s3Object = s3.getObject(bucketName, filePath);
+            S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
+
+            byte[] bytesArray = new byte[4096];
+            int bytesRead = -1;
+            while ((bytesRead = s3ObjectInputStream.read(bytesArray)) != -1) {
+                fileOut.write(bytesArray, 0, bytesRead);
+            }
+
+            s3ObjectInputStream.close();
+            fileOut.close();
+        } catch (Exception e) {
+            throw new StorageServiceException(e);
+        }
+    }
+
+    @Override
+    public void delete(String filePath) {
+        try {
+            s3.deleteObject(bucketName, filePath);
+        } catch (Exception e) {
+            throw new StorageServiceException(e);
+        }
+    }
 
 }
