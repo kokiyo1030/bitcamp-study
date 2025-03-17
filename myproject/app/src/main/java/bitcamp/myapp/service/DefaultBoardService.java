@@ -42,6 +42,11 @@ public class DefaultBoardService implements BoardService {
     }
 
     @Override
+    public void increaseViewCount(int no) {
+        boardDao.updateViewCount(no, 1);
+    }
+
+    @Override
     public AttachedFile getAttachedFile(int fileNo) {
         return boardFileDao.findByNo(fileNo);
     }

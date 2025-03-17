@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.List;
 
 @WebServlet("/board/detail")
 public class BoardDetailServlet extends HttpServlet {
@@ -22,6 +21,7 @@ public class BoardDetailServlet extends HttpServlet {
             int no = Integer.parseInt(req.getParameter("no"));
 
             BoardService boardService = (BoardService) getServletContext().getAttribute("boardService");
+            boardService.increaseViewCount(no);
             Board board = boardService.get(no);
 
             req.setAttribute("board", board);

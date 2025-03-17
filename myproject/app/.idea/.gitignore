@@ -1,0 +1,15 @@
+#intelliJ
+/myproject/app/.idea
+/myproject/app/bin
+/myproject/app/build
+/myproject/.gradle
+/myproject/.idea
+myproject/app/temp
+# Default ignored files
+/shelf/
+/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
