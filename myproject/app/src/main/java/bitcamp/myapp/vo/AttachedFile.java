@@ -1,7 +1,6 @@
 package bitcamp.myapp.vo;
 
 public class AttachedFile {
-
     private int no;
     private String filename;
     private String originFilename;

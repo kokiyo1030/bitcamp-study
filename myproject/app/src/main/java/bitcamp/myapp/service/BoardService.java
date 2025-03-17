@@ -6,7 +6,6 @@ import bitcamp.myapp.vo.Board;
 import java.util.List;
 
 public interface BoardService {
-
     List<Board> list();
     void add(Board board);
     Board get(int no);

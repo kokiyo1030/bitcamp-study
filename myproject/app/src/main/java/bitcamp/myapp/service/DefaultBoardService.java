@@ -23,6 +23,7 @@ public class DefaultBoardService implements BoardService {
 
     public void add(Board board) {
         boardDao.insert(board);
+
         for (AttachedFile file : board.getAttachedFiles()) {
             file.setBoardNo(board.getNo());
             boardFileDao.insert(file);
@@ -51,7 +52,6 @@ public class DefaultBoardService implements BoardService {
         boardDao.updateViewCount(no, 1);
     }
 
-    @Override
     public AttachedFile getAttachedFile(int fileNo) {
         return boardFileDao.findByNo(fileNo);
     }

@@ -40,7 +40,7 @@ public class BoardAddServlet extends HttpServlet {
             board.setContent(req.getParameter("content"));
             board.setWriter(loginUser);
 
-            //파일 업로드 처리
+            // 파일 업로드 처리
             StorageService storageService =
                     (StorageService) getServletContext().getAttribute("storageService");
 
@@ -57,7 +57,6 @@ public class BoardAddServlet extends HttpServlet {
                 // 클라우드에 업로드
                 storageService.upload("board/" + filename, part.getInputStream());
 
-                // 업로드된 정보 db에 저장하기위해 리스트에 저장
                 AttachedFile attachedFile = new AttachedFile();
                 attachedFile.setFilename(filename);
                 attachedFile.setOriginFilename(part.getSubmittedFileName());
@@ -69,6 +68,7 @@ public class BoardAddServlet extends HttpServlet {
 
             BoardService boardService = (BoardService) getServletContext().getAttribute("boardService");
             boardService.add(board);
+
             resp.sendRedirect("/board/list");
 
         } catch (Exception e) {

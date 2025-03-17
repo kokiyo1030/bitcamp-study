@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
 
 @WebServlet("/board/detail")
 public class BoardDetailServlet extends HttpServlet {

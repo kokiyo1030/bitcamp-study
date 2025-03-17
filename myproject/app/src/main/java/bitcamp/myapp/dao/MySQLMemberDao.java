@@ -17,14 +17,17 @@ public class MySQLMemberDao implements MemberDao {
 
     public Member findByEmailAndPassword(String email, String password) {
         String sql = "select" +
-                "        m.member_id," +
-                "        m.name," +
-                "        m.email" +
-                "        from ed_member m" +
-                "        where m.email = ? and m.pwd = sha2(?, 256)";
+                "      m.member_id," +
+                "      m.name," +
+                "      m.email" +
+                "    from ed_member m" +
+                "    where m.email=? and m.pwd = sha2(?, 256)";
+
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
+
             stmt.setString(1, email);
             stmt.setString(2, password);
+
             try (ResultSet rs = stmt.executeQuery()) {
 
                 if (!rs.next()) {

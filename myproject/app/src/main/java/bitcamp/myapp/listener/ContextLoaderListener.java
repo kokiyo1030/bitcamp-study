@@ -2,6 +2,7 @@ package bitcamp.myapp.listener;
 
 import bitcamp.myapp.dao.*;
 import bitcamp.myapp.service.*;
+import org.checkerframework.checker.units.qual.N;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -10,7 +11,9 @@ import javax.servlet.annotation.WebListener;
 import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 @WebListener
 public class ContextLoaderListener implements ServletContextListener {
@@ -31,17 +34,17 @@ public class ContextLoaderListener implements ServletContextListener {
 
             ServletContext ctx = sce.getServletContext();
 
-            MemberDao memberDao = new MySQLMemberDao(con);
-            BoardDao boardDao = new MySQLBoardDao(con);
-            BoardFileDao boardFileDao = new MySQLBoardFileDao(con);
+            MySQLMemberDao memberDao = new MySQLMemberDao(con);
+            MySQLBoardDao boardDao = new MySQLBoardDao(con);
+            MySQLBoardFileDao boardFileDao = new MySQLBoardFileDao(con);
 
-            MemberService memberService = new DefaultMemberService(memberDao);
+            DefaultMemberService memberService = new DefaultMemberService(memberDao);
             ctx.setAttribute("memberService", memberService);
 
-            BoardService boardService = new DefaultBoardService(boardDao, boardFileDao);
+            DefaultBoardService boardService = new DefaultBoardService(boardDao, boardFileDao);
             ctx.setAttribute("boardService", boardService);
 
-            StorageService storageService = new NCPObjectStorageService(appProps);
+            NCPObjectStorageService storageService = new NCPObjectStorageService(appProps);
             ctx.setAttribute("storageService", storageService);
 
             System.out.println("웹애플리케이션 실행 환경 준비!");
@@ -58,7 +61,9 @@ public class ContextLoaderListener implements ServletContextListener {
             if (con != null && !con.isClosed()) {
                 con.close();
             }
-            System.out.println("웹어플리케이션 자원 해제");
+
+            System.out.println("웹애플리케이션 자원 해제!");
+
         } catch (Exception e) {
             System.out.println("웹애플리케이션 실행 환경 해제 중 오류 발생!");
             e.printStackTrace();

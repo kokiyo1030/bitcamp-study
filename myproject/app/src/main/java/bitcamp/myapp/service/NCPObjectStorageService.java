@@ -5,15 +5,9 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.services.s3.model.*;
 
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Properties;
 
 public class NCPObjectStorageService implements StorageService {
@@ -27,6 +21,7 @@ public class NCPObjectStorageService implements StorageService {
     final AmazonS3 s3;
 
     public NCPObjectStorageService(Properties props) {
+
         this.endPoint = props.getProperty("ncp.end-point");
         this.regionName = props.getProperty("ncp.region-name");
         this.accessKey = props.getProperty("ncp.access-key");
@@ -73,6 +68,7 @@ public class NCPObjectStorageService implements StorageService {
 
             s3ObjectInputStream.close();
             fileOut.close();
+
         } catch (Exception e) {
             throw new StorageServiceException(e);
         }
@@ -86,5 +82,4 @@ public class NCPObjectStorageService implements StorageService {
             throw new StorageServiceException(e);
         }
     }
-
 }

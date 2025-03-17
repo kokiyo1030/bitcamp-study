@@ -26,7 +26,7 @@ public class BoardFileDeleteServlet extends HttpServlet {
                 throw new Exception("로그인이 필요합니다.");
             }
 
-            int fileNo = Integer.parseInt(req.getParameter("fileNo"));
+            int fileNo = Integer.parseInt(req.getParameter("no"));
 
             BoardService boardService = (BoardService) getServletContext().getAttribute("boardService");
             AttachedFile attachedFile = boardService.getAttachedFile(fileNo);

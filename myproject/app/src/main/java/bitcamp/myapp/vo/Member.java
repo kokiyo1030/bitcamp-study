@@ -3,7 +3,6 @@ package bitcamp.myapp.vo;
 import java.sql.Date;
 
 public class Member {
-
     private int no;
     private String name;
     private String email;
