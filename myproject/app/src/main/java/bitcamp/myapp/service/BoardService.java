@@ -1,7 +1,10 @@
 package bitcamp.myapp.service;
 
+import bitcamp.myapp.dao.BoardDao;
+import bitcamp.myapp.dao.MemberDao;
 import bitcamp.myapp.vo.AttachedFile;
 import bitcamp.myapp.vo.Board;
+import bitcamp.myapp.vo.Member;
 
 import java.util.List;
 

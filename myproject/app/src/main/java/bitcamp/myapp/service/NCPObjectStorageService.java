@@ -1,5 +1,7 @@
 package bitcamp.myapp.service;
 
+import bitcamp.stereotype.Component;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
@@ -10,6 +12,7 @@ import com.amazonaws.services.s3.model.*;
 import java.io.*;
 import java.util.Properties;
 
+@Component
 public class NCPObjectStorageService implements StorageService {
     final String endPoint;
     final String regionName;
@@ -59,6 +62,7 @@ public class NCPObjectStorageService implements StorageService {
         try {
             S3Object s3Object = s3.getObject(bucketName, filePath);
             S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
+
 
             byte[] bytesArray = new byte[4096];
             int bytesRead = -1;
