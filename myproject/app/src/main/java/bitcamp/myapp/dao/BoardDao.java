@@ -1,19 +1,21 @@
 package bitcamp.myapp.dao;
 
 import bitcamp.myapp.vo.Board;
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 public interface BoardDao {
 
-    List<Board> findAll() throws DaoException;
+    List<Board> findAll();
 
-    int insert(Board board) throws DaoException;
+    int insert(Board board);
 
-    Board findByNo(int no) throws DaoException;
+    Board findByNo(int no);
 
-    int update(Board board) throws DaoException;
+    int update(Board board);
 
-    int delete(int no) throws DaoException;
+    int delete(int no);
 
-    int updateViewCount(int no, int increment);
+    int updateViewCount(@Param("no") int no, @Param("increment") int increment);
 }

@@ -436,3 +436,76 @@ Content-Type: image/jpeg
   - BoardDeleteController
   - BoardFileDownloadController
   - BoardFileDeleteController
+
+# 10. IoC 컨테이너 구현하기
+
+## 학습목표
+
+- Reflection API를 사용하여 객체를 자동 생성할 수 있다.
+- IoC와 DI의 개념을 이해하고 그 관계를 설명할 수 있다.
+
+## 작업
+
+### 1. IoC 컨테이너에서 관리되는 객체를 표시할 애노테이션 정의
+
+- @Component 애노테이션 정의
+  - 일반 객체에 붙이는 용도
+- @Controller 애노테이션 정의
+  - 페이지 컨트롤러에게 붙이는 용도
+
+### 2. IoC 컨테이너에서 생성할 객체에 애노테이션 적용
+
+- DAO와 Service 클래스에 @Component 를 붙인다.
+- Controller 클래스에 @Controller를 붙인다.
+
+### 3. 객체를 자동 생성
+
+- ContextLoaderListener 변경
+  - 지정된 패키지의 클래스에 대해 객체를 자동 생성시키는 기능 추가
+- RequestHandler 생성
+  - 요청을 처리할 메서드와 컨트롤러 정보를 저장
+- DispatcherServlet 변경
+  - 요청이 들어 왔을 때 RequestHandler를 찾아 해당 메서드를 호출
+
+# 11. SpringBoot 도입하기
+
+## 학습목표
+
+- 웹프로젝트에 SpringBoot를 적용할 수 있다.
+
+## 작업
+
+### 1. SpringBoot 라이브러리 추가
+
+- build.gradle 변경
+  - spring.io 사이트의 Spring Initializr 를 사용하여 웹 프로젝트를 구성한 후 라이브러리 정보 추출
+- App 변경
+  - SpringBoot 실행 코드 추가
+- application.properties 생성
+  - 프로젝트 이름, 포트 번호 설정, 컨텍스트 루트 패스 설정
+
+### 2. 외부 프로퍼티 파일 로딩하기
+
+- App 변경
+  - 웹애플리케이션 경로가 아닌 다른 경로에 있는 프로퍼티를 로딩한다.
+  - 보통 보안이 필요한 값은 외부 경로에 두기 때문이다.
+    - 예) ~/config/bitcamp-study.properties
+
+### 3. Mybatis 설정
+
+- App 변경
+  - DataSource 객체를 생성하는 메서드 준비
+  - TransactionManager 객체를 생성하는 메서드 준비
+  - SqlSessionFactory 객체를 생성하는 메서드 준비
+
+### 2. DAO 에 적용
+
+- 구현체 제거
+  - MySQLBoardDao, MySQLBoardFileDao, MySQLMemberDao 클래스 제거
+- 예외 클래스 제거
+  - DaoException 제거
+- 인터페이스 변경
+  - BoardDao, BoardFileDao, MemberDao 변경
+- 
+
+
