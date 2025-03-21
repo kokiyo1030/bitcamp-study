@@ -220,3 +220,219 @@ Content-Type: image/jpeg
 
 ...
 ------WebKitFormBoundaryv4NOk2pPS6PJbYGY--
+
+# 04. SQL 삽입 공격 차단하기 및 부모 테이블 데이터 삭제하기
+
+## 학습목표
+
+- SQL 삽입 공격의 개념을 이해한다.
+- SQL 삽입 공격의 예를 보일 수 있다.
+- SQL 삽입 공격의 보안 약점을 해소하는 코드를 작성할 수 있다.
+  - PreparedStatement를 사용할 수 있다.
+- 자식 테이블에 데이터가 있는 부모 테이블의 데이터를 삭제할 수 있다.
+
+
+## 작업
+
+### 1. 삽입 공격 방어하기
+
+- MySQLBoardDao 변경
+  - Statement를 PreparedStatement로 변경한다.
+- MySQLBoardFileDao 변경
+  - Statement를 PreparedStatement로 변경한다.
+- MySQLMemberDao 변경
+  - Statement를 PreparedStatement로 변경한다.
+
+### 2. 첨부 파일이 있는 게시글 삭제 오류 해결
+
+- 게시글의 첨부 파일 데이터 모두 삭제하기
+  - BoardFileDao.deleteAllByBoardNo() 메서드 추가
+  - MySQLBoardFileDao.deleteAllByBoardNo() 메서드 구현
+- 게시글 삭제할 때 첨부 파일 데이터를 먼저 삭제하기
+  - DefaultBoardService.delete() 메서드 변경
+- 게시글 삭제할 때 네이버 클라우드의 업로드 파일도 삭제하기
+  - BoardDeleteServlet 변경
+
+# 05. 트랜잭션 다루기
+
+## 학습목표
+
+- 트랜잭션의 개념을 설명할 수 있다.
+- MySQL에서 트랜잭션을 다룰 수 있다.
+
+## 작업
+
+### 1. MySQL 클라이언트를 통해 트랜잭션 제어
+
+- 트랜잭션을 시작하기
+  - `mysql> set autocommit = 0`
+- 데이터 변경 작업 실행하기
+  - `insert into ed_board(member_id, title, content) values(101, 'aaa1', 'aaaaa');`
+  - `insert into ed_board(member_id, title, content) values(102, 'aaa1', 'aaaaa');`
+  - `insert into ed_board(member_id, title, content) values(103, 'aaa1', 'aaaaa');`
+  - `update ed_board set title='xxxx' where board_id=27;`
+- 데이터 결과 조회
+  - 클라이언트1: select 실행 및 결과 확인
+  - 클라이언트2: select 실행 및 결과 확인
+  - 결과의 차이점을 이해
+- commit 실행 후
+  - 클라이언트1과 클라이언트2의 select 실행 결과 확인
+- rollback 실행 후
+  - 클라이언트1과 클라이언트2의 select 실행 결과 확인
+
+### 2. JDBC 에서 트랜잭션 제어
+
+- DefaultBoardService 변경
+  - add(), update(), delete(), increaseViewCount(), deleteAttachedFile() 메서드에 트랜잭션 적용
+
+# 06. 트랜잭션 제어 코드를 캡슐화하기
+
+## 학습목표
+
+- 애노테이션을 정의하고 다룰 수 있다.
+- GoF의 Proxy 패턴을 이해하고 구현할 수 있다.
+
+## 작업
+
+### 1. 트랜잭션을 표시할 애노테이션 정의
+
+- Transactional 애노테이션 추가
+
+### 2. 트랜잭션 애노테이션 적용
+
+- DefaultBoardService 변경
+  - 트랜잭션을 다루는 메서드에 Transactional 애노테이션을 붙인다.
+
+### 3. 프록시 객체 팩토리 준비
+
+- TransactionProxyFactory 클래스 생성
+
+### 4. 트랜잭션 코드를 처리할 대행자 준비
+
+- TransactionInvocationHandler 클래스 생성
+
+### 5. 서비스 객체에 적용
+
+- ContextLoaderList 클래스 변경
+
+# 07. Mybatis 퍼시스턴스 프레임워크 적용하기
+
+## 학습목표
+
+- Mybatis 퍼시스턴스 프레임워크의 구동 원리를 이해하고 적용할 수 있다. .
+
+## 작업
+
+### 1. Mybatis 라이브러리 설치
+
+- build.gradle 변경
+  - 'org.mybatis:mybatis:3.5.19' 추가
+  - 'org.apache.commons:commons-dbcp2:2.13.0' 추가
+
+### 2. Mybatis 설정 및 객체 준비
+
+- jdbc.properties 생성
+  - DB 접속 정보 설정
+- mybatis-config.xml 생성
+  - Mybatis 설정
+- ContextLoaderListener 변경
+  - Mybatis 관련 객체 준비
+
+### 3. Mybatis 적용
+
+`Connection`을 직접 사용하는 대신에 Mybatis의 `SqlSession`을 사용하여 SQL 실행
+
+- MySQLBoardDao 변경
+  - SQL문을 SQL 매퍼 파일로 옮긴다.
+  - Mybatis 코드를 적용한다.
+- MySQLBoardFileDao 변경
+  - SQL문을 SQL 매퍼 파일로 옮긴다.
+  - Mybatis 코드를 적용한다.
+- MySQLMemberDao 변경
+  - SQL문을 SQL 매퍼 파일로 옮긴다.
+  - Mybatis 코드를 적용한다.
+- bitcamp/myapp/mapper/BoardDao.xml 생성
+  - MySQLBoardDao에서 사용할 SQL 문을 보관
+- bitcamp/myapp/mapper/BoardFileDao.xml 생성
+  - MySQLBoardFileDao에서 사용할 SQL 문을 보관
+- bitcamp/myapp/mapper/MemberDao.xml 생성
+  - MySQLMemberDao에서 사용할 SQL 문을 보관
+
+### 4. 트랜잭션 제어
+
+- TransactionInvocationHandler 변경
+- TransactionProxyFactory 변경
+- SqlSessionFactoryProxy 생성
+  - 같은 스레드가 같은 SqlSession을 사용하도록 openSession()을 구현한다.
+- SqlSessionProxy 생성
+  - close()를 호출할 때 자원해제 하지 않도록 변경한다.
+  - realClose()를 호출할 때 자원을 해제하도록 한다.
+- ContextLoaderListener 변경
+
+### 5. XML 설정 대신 자바 코드로 설정하기
+
+- ContextLoaderListener 변경
+
+# 08. Front Controller 패턴 적용하기 I - DispatcherServlet 만들기
+
+## 학습목표
+
+- FrontController 패턴의 구조와 동작 원리를 이해하고 구현할 수 있다.
+- GoF의 Facade 패턴을 이해한다.
+
+## 작업
+
+### 1. Front Controller 역할을 할 서블릿 생성
+
+- DispatcherServlet 클래스 생성
+
+### 2. 기존 서블릿을 Page Controller로 전환
+
+- XxxServlet 클래스 변경
+- *.jsp 변경
+
+# 09. Front Controller 패턴 적용하기 II - 페이지 컨트롤러를 POJO로 바꾸기
+
+## 학습목표
+
+- POJO의 의미를 이해하고 구현할 수 있다.
+- Reflection API를 사용하여 특정 애노테이션이 붙은 메서드를 찾아 호출할 수 있다.
+- Generic을 사용할 수 있다.
+
+## 작업
+
+### 1. 페이지 컨트롤러 역할을 수행하는 서블릿을 POJO로 변환
+
+- XxxServlet ==> XxxController 로 이름 변경
+  - POJO 클래스로 변환
+- ContextLoaderListener 변경
+  - POJO로 변환한 페이지 컨트롤러를 ServletContext에 보관한다.
+- DispatcherServlet 변경
+  - 클라이언트 요청이 들어오면 그 요청을 처리할 객체를 ServletContext에서 꺼내 실행한다.
+
+### 2. 클라이언트 요청을 처리할 메서드에 붙일 애노테이션 정의
+
+- RequestMapping 애노테이션 생성
+
+### 3. 클라이언트 요청을 처리할 메서드에 애노테이션을 붙인다.
+
+- XxxController 변경
+  - 요청을 처리할 메서드에 애노테이션을 붙인다.
+- DispatcherServlet 변경
+  - ServletContext에서 꺼낸 객체에서 애노테이션이 붙은 메서드를 찾아 호출한다.
+
+### 4. 관련된 메서드를 한 클래스에 통합
+
+- AuthController 클래스 생성
+  - LoginFormController
+  - LoginController
+  - LogoutController
+- BoardController 클래스 생성
+  - BoardListController
+  - BoardDetailController
+  - BoardFormController
+  - BoardAddController
+  - BoardUpdateController
+  - BoardDeleteController
+  - BoardFileDownloadController
+  - BoardFileDeleteController
