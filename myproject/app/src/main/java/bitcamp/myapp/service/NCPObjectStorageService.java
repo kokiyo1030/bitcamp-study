@@ -9,30 +9,42 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
-//@Service
+@Service
 public class NCPObjectStorageService implements StorageService {
-    final String endPoint;
-    final String regionName;
-    final String accessKey;
-    final String secretKey;
+    @Value("${ncp.end-point}")
+    private String endPoint;
 
-    final String bucketName;
+    @Value("{ncp.region-name}")
+    private String regionName;
 
-    final AmazonS3 s3;
+    @Value("${ncp.access-key}")
+    private String accessKey;
 
-    public NCPObjectStorageService(Properties props) {
+    @Value("${ncp.secret-key}")
+    private String secretKey;
 
-        this.endPoint = props.getProperty("ncp.end-point");
-        this.regionName = props.getProperty("ncp.region-name");
-        this.accessKey = props.getProperty("ncp.access-key");
-        this.secretKey = props.getProperty("ncp.secret-key");
-        this.bucketName = props.getProperty("ncp.bucket-name");
+    @Value("${ncp.bucket-name}")
+    private String bucketName;
+
+    private AmazonS3 s3;
+
+    @PostConstruct
+    public void init() {
+        System.out.println("init() 호출됨!: " + endPoint);
+
+        // AWS S3 API 버전1에서 발생하는 경고 메시지 출력하지 않게 설정
+        // 버전2로 변경하면 경고 메시지가 발생하지 않는다
+        // 단, 버전2는 네이버 클라우드의 Object Storage 서비스와 연동을 지원하지 않는다
+        System.getProperties().setProperty("aws.java.v1.disableDeprecationAnnouncement", "true");
 
         s3 = AmazonS3ClientBuilder.standard()
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, regionName))
