@@ -16,7 +16,9 @@ public class DefaultBoardService implements BoardService {
     private BoardFileDao boardFileDao;
 
 
-    public DefaultBoardService(BoardDao boardDao, BoardFileDao boardFileDao) {
+    public DefaultBoardService(
+            BoardDao boardDao,
+            BoardFileDao boardFileDao) {
         this.boardDao = boardDao;
         this.boardFileDao = boardFileDao;
     }
