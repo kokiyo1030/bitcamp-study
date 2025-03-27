@@ -6,7 +6,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,15 +17,14 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 // 학습 목표:
-// - Spring Security에서 인증을 수행한 후 세션 처리를 위해 페이지 컨트롤러에게 넘기기
-// - formLogin() 설정 변경
-//   - successForwardUrl("/auth/login")
-// - logout 설정 추가
+// - Spring Security에서 인증을 수행한 후 UserDetails에 로그인 사용자 정보 저장하기
+//   - UserDetails 커스터마이징
+//     - CustomUserDetails 클래스 생성
 
-//@Configuration
-public class SecurityConfig2 {
+@Configuration
+public class SecurityConfig3 {
 
-    private static final Log log = LogFactory.getLog(SecurityConfig2.class);
+    private static final Log log = LogFactory.getLog(SecurityConfig3.class);
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -75,11 +73,7 @@ public class SecurityConfig2 {
             @Override
             public UserDetails loadUserByUsername (String username) throws UsernameNotFoundException {
                 Member member = memberService.get(username);
-                return User.builder()
-                        .username(member.getEmail())
-                        .password(member.getPassword())
-                        .roles("USER")
-                        .build();
+                return new CostomUserDetails(member);
             }
         };
     }
