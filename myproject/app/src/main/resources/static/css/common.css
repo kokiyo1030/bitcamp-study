@@ -1,0 +1,30 @@
+body {
+    font-size: small;
+}
+
+#page-header {
+    height: 80px;
+    background-color: lightgray;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 10px;
+    /*border: 1px solid blue;*/
+}
+
+#page-footer {
+    height: 50px;
+    background-color: black;
+    color: white;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /*border: 1px solid blue;*/
+}
+
+#content {
+    padding: 10px;
+    /*border: 1px solid blue;*/
+
+}

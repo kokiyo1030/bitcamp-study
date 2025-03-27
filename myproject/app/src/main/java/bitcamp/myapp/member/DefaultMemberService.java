@@ -11,7 +11,15 @@ public class DefaultMemberService implements MemberService {
         this.memberDao = memberDao;
     }
 
-    public Member get(String email, String password) {
-        return memberDao.findByEmailAndPassword(email, password);
+    @Override
+    public Member get(String email) {
+        return memberDao.findByEmail(email);
     }
+
+    @Override
+    public int changePassword(String email, String password) {
+        return memberDao.updatePassword(email, password);
+    }
+
+
 }

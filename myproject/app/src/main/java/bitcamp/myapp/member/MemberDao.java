@@ -6,5 +6,7 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface MemberDao {
 
-    Member findByEmailAndPassword(@Param("email") String email, @Param("password") String password);
+    Member findByEmail(String email);
+
+    int updatePassword(@Param("email") String email, @Param("password") String password);
 }

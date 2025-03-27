@@ -1,5 +1,7 @@
-package bitcamp.myapp.config.security02;
+package bitcamp.myapp.config.security03;
 
+import bitcamp.myapp.member.Member;
+import bitcamp.myapp.member.MemberService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.annotation.Bean;
@@ -9,15 +11,16 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-//@Configuration
-public class SecurityConfig4 {
+@Configuration
+public class SecurityConfig1 {
 
-    private static final Log log = LogFactory.getLog(SecurityConfig4.class);
+    private static final Log log = LogFactory.getLog(SecurityConfig1.class);
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -36,35 +39,27 @@ public class SecurityConfig4 {
 
     // 사용자 인증을 수행할 객체를 준비
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        log.debug("UserDetailsService 준비!");
+    public UserDetailsService userDetailsService(MemberService memberService) {
+        log.debug("DBUserDetailsService 준비!");
 
-        // 임시 사용자 정보 생성
-        // 사용자가 입력한 암호를 저장할 때 날 것 그대로 저장하는 것이 아니라,
-        // 특별한 알고리즘으로 가공하여 저장한다.
-        // 로그인을 처리할 때도 사용자가 입력한 암호를 비교할 때,
-        // 내부에서 지정된 알고리즘으로 가공한 후에 저장된 값과 비교한다.
-        UserDetails[] userDetails = {
-                User.builder()
-                        .username("user1@test.com")
-                        .password(passwordEncoder.encode("1111"))
-                        .roles("USER")
-                        .build(),
-                User.builder()
-                        .username("user2@test.com")
-                        .password(passwordEncoder.encode("1111"))
-                        .roles("USER")
-                        .build(),
-                User.builder()
-                        .username("user3@test.com")
-                        .password(passwordEncoder.encode("1111"))
-                        .roles("USER")
-                        .build(),
+        class DBUserDetailsService implements UserDetailsService {
+            private final MemberService memberService;
+            public DBUserDetailsService(MemberService memberService) {
+                this.memberService = memberService;
+            }
 
-        };
+            @Override
+            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+                Member member = memberService.get(username);
+                return User.builder()
+                        .username(member.getEmail())
+                        .password(member.getPassword())
+                        .roles("USER")
+                        .build();
+            }
+        }
 
-        // 메모리에 사용자 목록을 두고 검사를 수행하는 객체 리턴
-        return new InMemoryUserDetailsManager(userDetails);
+        return new DBUserDetailsService(memberService);
     }
 
     // Spring Security에 기본 장착된 PasswordEncoder를 우리가 만든 인코더로 바꾼다.
@@ -88,4 +83,3 @@ public class SecurityConfig4 {
         };
     }
 }
-
