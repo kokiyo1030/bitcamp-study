@@ -63,12 +63,12 @@
             background-color: gray;
         }
     </style>
-    
+
 </head>
 <body>
 
 <header data-th-replace="~{header :: page-header}"></header>
-    
+
 <div id="content">
     <h1>게시글</h1>
     <form data-th-action="@{/board/update}" method="post"  enctype="multipart/form-data">
@@ -126,13 +126,13 @@
 <footer data-th-replace="~{footer :: #page-footer}"></footer>
 
 <script>
-function deleteBoard(no) {
-    location.href = "/board/delete?no=" + no;
-}
+    function deleteBoard(no) {
+        location.href = "/board/delete?no=" + no;
+    }
 
-function deleteFile(no) {
-    location.href = "/board/file/delete?no=" + no;
-}
+    function deleteFile(no) {
+        location.href = "/board/file/delete?no=" + no;
+    }
 </script>
 </body>
 </html>

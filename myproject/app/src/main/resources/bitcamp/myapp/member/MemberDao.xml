@@ -30,4 +30,9 @@
             email = #{email}
     </update>
 
+    <update id="updateAllPassword">
+        update ed_member set
+            pwd = #{password}
+    </update>
+
 </mapper>

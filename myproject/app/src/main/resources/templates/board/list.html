@@ -53,15 +53,15 @@
         </tr>
         </thead>
         <tbody>
-            <tr data-th-each="board : ${list}">
-                <td data-th-text="${board.no}">1</td>
-                <td><a href="detail.html"
-                    data-th-href="@{/board/detail(no=${board.no})}" 
-                    data-th-text="${board.title}">제목입니다.</a></td>
-                <td data-th-text="${board.writer.name}">홍길동</td>
-                <td data-th-text="${board.createDate}">2025-03-25</td>
-                <td data-th-text="${board.viewCount}">22</td>
-            </tr>
+        <tr data-th-each="board : ${list}">
+            <td data-th-text="${board.no}">1</td>
+            <td><a href="detail.html"
+                   data-th-href="@{/board/detail(no=${board.no})}"
+                   data-th-text="${board.title}">제목입니다.</a></td>
+            <td data-th-text="${board.writer.name}">홍길동</td>
+            <td data-th-text="${board.createDate}">2025-03-25</td>
+            <td data-th-text="${board.viewCount}">22</td>
+        </tr>
         </tbody>
     </table>
 </div>

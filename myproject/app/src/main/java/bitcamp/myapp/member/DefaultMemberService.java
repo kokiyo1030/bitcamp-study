@@ -21,5 +21,10 @@ public class DefaultMemberService implements MemberService {
         return memberDao.updatePassword(email, password);
     }
 
+    @Override
+    public int changeAllPassword(String password) {
+        return memberDao.updateAllPassword(password);
+    }
+
 
 }
