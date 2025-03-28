@@ -93,7 +93,7 @@
             <input type="file" id="files" name="files" multiple>
             <ul id="attached-files">
                 <li data-th-each="attachedFile : ${board.attachedFiles}">
-                    <div data-th-if="${attachedFile.no != 0}">
+                    <div data-th-if="${attachedFile.no != 0}" >
                         <a href="/board/file/delete"
                            data-th-href="@{/board/file/download(fileNo=${attachedFile.no})}"
                            data-th-text="${attachedFile.originFilename}">test.pdf</a>
