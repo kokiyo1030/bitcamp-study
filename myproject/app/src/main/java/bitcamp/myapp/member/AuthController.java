@@ -1,7 +1,9 @@
 package bitcamp.myapp.member;
 
+import bitcamp.myapp.config.security04.CustomUserDetails;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -30,33 +32,24 @@ public class AuthController {
         model.addAttribute("email", email);
     }
 
-    @PostMapping("login")
-    public String login(String username, HttpSession session) throws Exception {
+    @PostMapping("success")
+    public String success(String saveEmail, @AuthenticationPrincipal CustomUserDetails principal, HttpSession session, HttpServletResponse resp) throws Exception {
 
-        log.debug("============> /auth/login 요청 처리!");
+        log.debug("Spring Security에서 로그인 성공한 후 마무리 작업 수행");
 
-        Member member = memberService.get(username);
-        if (member == null) {
-            return "redirect:login-form";
+        Member member = principal.getMember();
+        session.setAttribute("loginUser", member);
+
+        if (saveEmail != null) {
+            Cookie emailCookie = new Cookie("username", member.getEmail());
+            emailCookie.setMaxAge(60 * 60 * 24 * 7);
+            resp.addCookie(emailCookie);
+        } else {
+            Cookie emailCookie = new Cookie("username", "");
+            emailCookie.setMaxAge(0);
+            resp.addCookie(emailCookie);
         }
 
-//        if (saveEmail != null) {
-//            Cookie emailCookie = new Cookie("username", username);
-//            emailCookie.setMaxAge(60 * 60 * 24 * 7);
-//            resp.addCookie(emailCookie);
-//        } else {
-//            Cookie emailCookie = new Cookie("username", "");
-//            emailCookie.setMaxAge(0);
-//            resp.addCookie(emailCookie);
-//        }
-
-        session.setAttribute("loginUser", member);
-        return "redirect:/home";
-    }
-
-    @GetMapping("logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
         return "redirect:/home";
     }
 }

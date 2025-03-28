@@ -1,4 +1,4 @@
-package bitcamp.myapp.config.security03;
+package bitcamp.myapp.config.security04;
 
 import bitcamp.myapp.member.Member;
 import lombok.Data;
@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Data
-public class CostomUserDetails implements UserDetails {
+public class CustomUserDetails implements UserDetails {
 
     private final Member member;
 
