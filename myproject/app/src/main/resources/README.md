@@ -691,3 +691,55 @@ spring.mvc.view.suffix=.jsp
 - MemberService, DefaultMemberService 변경
 - login-form.html 변경
 - common.css 변경
+
+# 16. CSRF 공격을 방어하기
+
+## 학습목표
+
+- CSRF(Cross-Site Request Forgery) 공격의 원리를 이해하고 다룰 수 있다.
+
+## 작업
+
+### 1. CSRF 공격 시연
+
+- CSRF를 활성화시켰을 때 비활성화시켰을 때의 form 태그의 값 확인
+  - `_csrf` 토큰 값 확인
+- delete 요청이 GET으로 되어 있을 때 CSRF 공격이 가능한 것을 확인
+  - GET 요청은 Spring Security 에서 `_csrf` 토큰 값을 검사하지 않는다.
+
+### 2. CSRF 공격 방어
+
+- delete 요청을 `GET` 방식에서 `POST` 방식으로 전환
+  - board/detail.html 변경
+    - 게시글 삭제 버튼 클릭 시 POST 요청 수행
+    - 첨부파일 삭제 버튼 클릭 시 POST 요청 수행
+  - BoardController 변경
+    - delete 요청을 GET 에서 POST 로 변경
+    - file/delete 요청을 GET 에서 POST 로 변경
+- logout 요청을 `GET` 방식에서 `POST` 방식으로 전환
+  - SecurityConfig 변경
+    - logout() 설정 변경
+  - header.html 변경
+    - 로그아웃 요청을 `GET` 방식에서 `POST` 방식으로 전환
+
+# 17. CSR 방식으로 전환하기
+
+## 학습목표
+
+- SSR(Server-Side Rendering)과 CSR(Client-Side Rendering)의 동작 원리를 이해하고 CSR 구조로 변경할 수 있다.
+
+## 작업
+
+### 1. Thymeleaf 뷰 템플릿 엔진을 제거한다.
+
+- resources/templates 폴더의 파일을 static 폴더로 옮긴다.
+- templates 폴더를 삭제한다.
+- build.gradle 변경
+  - thymeleaf 와 관련된 라이브러리 제거
+
+### 2. Spring Security 설정을 변경한다.
+
+- authorizeHttpRequests() 변경
+  - `*.html` 요청에 대해 인증을 검사하지 않도록 변경: 정규표현식 패턴 매칭 사용
+
+### 3. HTML 페이지 변경

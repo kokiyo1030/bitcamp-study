@@ -2,7 +2,6 @@ package bitcamp.myapp.member;
 
 import bitcamp.myapp.common.JsonResult;
 import bitcamp.myapp.config.CustomUserDetails;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,43 +27,58 @@ public class AuthController {
     }
 
     @GetMapping("login-form")
-    public void form(@CookieValue(value = "email", required = false) String email, Model model) {
+    public void form(
+            @CookieValue(value="email", required=false) String email,
+            Model model) {
         model.addAttribute("email", email);
     }
 
     @PostMapping("success")
-    public String success(String saveEmail, @AuthenticationPrincipal CustomUserDetails principal, HttpSession session, HttpServletResponse resp) throws Exception {
+    @ResponseBody
+    public JsonResult success(
+            String saveEmail,
+            @AuthenticationPrincipal CustomUserDetails principal,
+            HttpSession session,
+            HttpServletResponse resp) throws Exception {
 
-        log.debug("Spring Security에서 로그인 성공한 후 마무리 작업 수행");
+        log.debug("Spring Security에서 로그인 성공한 후 마무리 작업 수행!");
 
         Member member = principal.getMember();
         session.setAttribute("loginUser", member);
 
         if (saveEmail != null) {
-            Cookie emailCookie = new Cookie("username", member.getEmail());
+            Cookie emailCookie = new Cookie("email", member.getEmail());
             emailCookie.setMaxAge(60 * 60 * 24 * 7);
             resp.addCookie(emailCookie);
         } else {
-            Cookie emailCookie = new Cookie("username", "");
+            Cookie emailCookie = new Cookie("email", "");
             emailCookie.setMaxAge(0);
             resp.addCookie(emailCookie);
         }
 
-        return "redirect:/home";
+        return JsonResult.builder().status(JsonResult.SUCCESS).build();
+    }
+
+    @PostMapping("failure")
+    @ResponseBody
+    public JsonResult failure() {
+        return JsonResult.builder().status(JsonResult.FAILURE).build();
     }
 
     @GetMapping("user-info")
     @ResponseBody
-    public JsonResult userInfo(HttpSession session) throws JsonProcessingException {
+    public JsonResult userInfo(HttpSession session) {
         Member member = (Member) session.getAttribute("loginUser");
         if (member == null) {
             return JsonResult.builder()
                     .status(JsonResult.FAILURE)
                     .build();
         }
+
         return JsonResult.builder()
                 .status(JsonResult.SUCCESS)
                 .data(member)
                 .build();
     }
+
 }

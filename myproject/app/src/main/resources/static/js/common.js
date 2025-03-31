@@ -1,3 +1,6 @@
+const __csrfToken = getCookie("XSRF-TOKEN");
+console.log(__csrfToken);
+
 document.addEventListener("DOMContentLoaded", () => {
     // DOM Tree 를 완성한 후, 렌더링 전에 호출됨
     loadHeader();
@@ -41,4 +44,15 @@ function getUserInfo() { // 페이지 푸터 로딩
     } else {
         document.querySelector(".logged-in").style["display"] = "none";
     }
+}
+
+function getCookie(name) {
+    const cookies = document.cookie.split('; ');
+    for (const cooke of cookies) {
+        const [cookieName, cookeValue] = cooke.split("=");
+        if (cookieName === name) {
+            return decodeURIComponent(cookeValue);
+        }
+    }
+    return null;
 }
