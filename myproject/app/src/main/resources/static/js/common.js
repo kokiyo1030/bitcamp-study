@@ -46,6 +46,15 @@ function getUserInfo() { // 페이지 푸터 로딩
     }
 }
 
+function logout() {
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", "/logout", false);
+    xhr.setRequestHeader("X-XSRF-TOKEN", __csrfToken);
+    xhr.send();
+
+    location.href="/home.html";
+}
+
 function getCookie(name) {
     const cookies = document.cookie.split('; ');
     for (const cooke of cookies) {
