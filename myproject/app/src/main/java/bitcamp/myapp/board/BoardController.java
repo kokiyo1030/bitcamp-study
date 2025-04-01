@@ -91,20 +91,20 @@ public class BoardController {
         return JsonResult.builder().status(JsonResult.SUCCESS).build();
     }
 
-    @PostMapping("update")
-    public String update(
+    @PatchMapping("update")
+    public JsonResult update(
             Board board,
             MultipartFile[] files,
             HttpSession session) throws Exception {
 
         Member loginUser = (Member) session.getAttribute("loginUser");
-        if (loginUser == null) {
-            throw new Exception("로그인이 필요합니다.");
-        }
 
         Board oldBoard = boardService.get(board.getNo());
         if (oldBoard.getWriter().getNo() != loginUser.getNo()) {
-            throw new Exception("변경 권한이 없습니다.");
+            return JsonResult.builder()
+                    .status(JsonResult.FAILURE)
+                    .data("변경 권한이 없습니다.")
+                    .build();
         }
 
         ArrayList<AttachedFile> fileList = new ArrayList<>();
@@ -126,35 +126,37 @@ public class BoardController {
 
         try {
             boardService.update(board);
+
         } catch (Exception e) {
             for (AttachedFile file : board.getAttachedFiles()) {
                 storageService.delete("board/" + file.getFilename());
             }
-            throw e;
+            return JsonResult.builder()
+                    .status(JsonResult.FAILURE)
+                    .data("변경 실패!")
+                    .build();
         }
 
-        return "redirect:list";
+        return JsonResult.builder().status(JsonResult.SUCCESS).build();
     }
 
-    @PostMapping("delete")
-    public String delete(int no, HttpSession session) throws Exception {
-
+    @DeleteMapping("delete")
+    public JsonResult delete(int no, HttpSession session) throws Exception {
         Member loginUser = (Member) session.getAttribute("loginUser");
-        if (loginUser == null) {
-            throw new Exception("로그인이 필요합니다.");
-        }
-
         Board board = boardService.get(no);
         if (board.getWriter().getNo() != loginUser.getNo()) {
-            throw new Exception("삭제 권한이 없습니다.");
+            return JsonResult.builder()
+                    .status(JsonResult.FAILURE)
+                    .data("삭제 권한이 없습니다.")
+                    .build();
         }
 
         for (AttachedFile attachedFile : board.getAttachedFiles()) {
             storageService.delete("board/" + attachedFile.getFilename());
         }
-
         boardService.delete(no);
-        return "redirect:list";
+
+        return JsonResult.builder().status(JsonResult.SUCCESS).build();
     }
 
     @GetMapping("file/download")

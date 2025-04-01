@@ -76,10 +76,8 @@
     xhr.withCredentials = true;
     xhr.send();
     const response = JSON.parse(xhr.responseText);
-    // console.log(response);
 
     const template = Handlebars.compile(trTemplate.innerHTML);
-    // console.log(template({response}));
     tbody.innerHTML = template(response);
 </script>
 

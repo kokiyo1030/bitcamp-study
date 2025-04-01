@@ -20,13 +20,6 @@ public class AuthController {
 
     private static final Log log = LogFactory.getLog(AuthController.class);
 
-    @GetMapping("login-form")
-    public void form(
-            @CookieValue(value="email", required=false) String email,
-            Model model) {
-        model.addAttribute("email", email);
-    }
-
     @PostMapping("success")
     public JsonResult success(
             String saveEmail,

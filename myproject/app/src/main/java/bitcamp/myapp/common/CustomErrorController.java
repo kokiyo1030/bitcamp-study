@@ -6,19 +6,31 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 
 @RestController
 public class CustomErrorController implements ErrorController {
 
     @RequestMapping("/error")
     public JsonResult error(HttpServletRequest request) {
-        Throwable exception = (Throwable) request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
 
-        String message = exception.getMessage() != null ? exception.getMessage() : "실행 오류입니다";
+        HashMap<String, Object> errorData = new HashMap<>();
+        errorData.put("status_code", request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE));
+        errorData.put("url", request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI));
+
+        Throwable exception = (Throwable) request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
+        if (exception != null) {
+            errorData.put("message", exception.getMessage() != null ? exception.getMessage() : "No message available");
+            errorData.put("type", exception.getCause() != null ? exception.getCause().getClass().getName() : "Unknown cause");
+        } else {
+            errorData.put("message", "Unknown error occurred");
+            errorData.put("type", "Unknown");
+        }
 
         return JsonResult.builder()
                 .status(JsonResult.FAILURE)
-                .data(message)
+                .data(errorData)
                 .build();
     }
 }
+
