@@ -36,6 +36,8 @@ public class RSAKeyGenerator {
 
     private static String convertToPemFormat(String type, byte[] keyBytes) {
         String base64Encoded = Base64.getEncoder().encodeToString(keyBytes);
-        return "-----BEGIN " + type + "-----\n" + base64Encoded + "\n-----END " + type + "-----";
+        return "-----BEGIN " + type + "-----\n" +
+                base64Encoded.replaceAll("(.{64})", "$1\n") +  // 64자마다 줄 바꿈
+                "\n-----END " + type + "-----";
     }
 }

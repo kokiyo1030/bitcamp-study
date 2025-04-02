@@ -1,5 +1,6 @@
 package bitcamp.myapp;
 
+import bitcamp.myapp.common.LoginUserArgumentResolver;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -21,6 +22,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
@@ -35,7 +38,9 @@ import java.util.List;
 
 // DAO 구현체 자동 생성을 설정하는 방법 1) 애노테이션으로 설정하기
 //@MapperScan(basePackages = "bitcamp.myapp.dao")
-public class App {
+public class App implements WebMvcConfigurer {
+    // Web MVC 관련 추가 설정은 WebMvcConfigurer 구현체의 메서드를 통해 설정한다
+    // 예) HandlerInterceptor, HandlerMethodArgumentResolver 등
 
     @Value("${jdbc.driver}")
     private String driver;
@@ -66,6 +71,12 @@ public class App {
 
         MapPropertySource propertySource = new MapPropertySource("dynamicProperties", datasourceProperties);
         configurableEnvironment.getPropertySources().addFirst(propertySource);
+    }
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        // request handler의 특정 파라미터 값을 처리하기 위해 개발자가 만든 객체를 등록한다
+        resolvers.add(new LoginUserArgumentResolver());
     }
 
     public static void main(String[] args) {

@@ -56,10 +56,10 @@ public class SecurityConfig {
 
     private static final Log log = LogFactory.getLog(SecurityConfig.class);
 
-    @Value("jwt.private.key")
+    @Value("${jwt.private.key}")
     RSAPrivateKey privateKey;
 
-    @Value("jwt.public.key")
+    @Value("${jwt.public.key}")
     RSAPublicKey publicKey;
 
     @Bean
@@ -69,7 +69,7 @@ public class SecurityConfig {
                 // 1) 요청 URL의 접근권한 설정
                 .authorizeHttpRequests()
                 .regexMatchers(".*\\.html").permitAll() // 정규표현식과 일치하는 요청은 인증을 검사하지 않는다.
-                .mvcMatchers("/css/**", "/js/**", "/auth/**").permitAll() // 지정된 URL의 요청은 인증을 검사하지 않는다.
+                .mvcMatchers("/css/**", "/js/**").permitAll() // 지정된 URL의 요청은 인증을 검사하지 않는다.
                 .anyRequest().authenticated() // 나머지 요청 URL은 인증을 검사한다.
                 .and() // 접근제어권한설정 등록기를 만든 HttpSecurity 객체를 리턴한다.
 
@@ -84,19 +84,21 @@ public class SecurityConfig {
                 .permitAll()
                 .and()
 
-                // 3) 로그아웃 설정
-                .logout()
-                .logoutUrl("/logout") // 로그아웃 URL 설정. 기본은 POST 요청에만 동작한다.
-                // 로그아웃 결과를 직접 출력한다.
-                .logoutSuccessHandler((request, response, authentication) -> {
-                    response.setStatus(HttpServletResponse.SC_OK);
-                    response.setContentType("application/json");
-                    response.getWriter().println("{\"status\":\"success\"}");
-                })
-                .invalidateHttpSession(true) // 세션 무효화 설정
-                .deleteCookies("JSESSIONID") // 톰캣 서버에서 세션 ID를 전달할 때 사용하는 쿠키
-                .permitAll()
-                .and()
+                // JWT 는 Stateless 방식이므로 세션을 사용하지 않는다
+                // - 클라이언트에서 JWT 토큰을 삭제하면 된다
+//                // 3) 로그아웃 설정
+//                .logout()
+//                .logoutUrl("/logout") // 로그아웃 URL 설정. 기본은 POST 요청에만 동작한다.
+//                // 로그아웃 결과를 직접 출력한다.
+//                .logoutSuccessHandler((request, response, authentication) -> {
+//                    response.setStatus(HttpServletResponse.SC_OK);
+//                    response.setContentType("application/json");
+//                    response.getWriter().println("{\"status\":\"success\"}");
+//                })
+//                .invalidateHttpSession(true) // 세션 무효화 설정
+//                .deleteCookies("JSESSIONID") // 톰캣 서버에서 세션 ID를 전달할 때 사용하는 쿠키
+//                .permitAll()
+//                .and()
 
                 // 4) CSRF(Cross-Site Request Forgery) 설정: 기본이 활성화된 상태다.
                 // - 데이터 변경에 관련된 요청(POST, PUT, PATCH, DELETE)을 받을 때 CSRF 검증을 수행한다.
@@ -109,9 +111,13 @@ public class SecurityConfig {
                 //   XSRF-TOKEN 이라는 이름의 쿠키로 클라이언트에게 전송된다.
                 // - 클라이언트에서는 데이터 변경에 관련된 요청을 할 때 마다.
                 //   폼 파라미터 값(_csrf)이나 요청 헤더(X-XSRF-TOKEN)로 CSRF 토큰 값을 서버에 보내야 한다.
-                .csrf()
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .and()
+//                .csrf()
+//                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+//                .and()
+                // CSRF 토큰은 쿠키, 세션 기반 인증에서만 유효하다
+                // JWT는 쿠키, 세션을 사용하지 않기 때문에 CSRF 토큰을 전달 할 수 없다
+                // - 클라이언트에서는 JWT 토큰을 localStorage나 sessionStorage에 저장
+                .csrf().disable()
 
                 // 4) CORS 설정
                 // - 기본으로 비활성화된 상태다.
@@ -121,6 +127,10 @@ public class SecurityConfig {
                 .and()
 
                 // 6) OAuth2 설정
+                // - 이 필터는 JWT 토큰을 검증하는 일을 한다
+                // - JWT 토큰은 이 서버에서 발급한다
+                // - 클라이언트가 서버에 요청할 때 서버가 발급한 JWT 토큰을 "Authorization: Bearer <JWT토큰>" 헤더에 붙여 보내야한다
+                // - OAuth2 인증 표준을 준수하는 필터. 다른 OAuth2 인증 서버와 연동 가능하다
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
 
                 // SecurityFilterChain 준비
