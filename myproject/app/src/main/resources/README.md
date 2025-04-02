@@ -727,6 +727,9 @@ spring.mvc.view.suffix=.jsp
 ## 학습목표
 
 - SSR(Server-Side Rendering)과 CSR(Client-Side Rendering)의 동작 원리를 이해하고 CSR 구조로 변경할 수 있다.
+- 웹 페이지에서 AJAX로 서버에 요청할 수 있다.
+- 서버 실행 중 발생하는 예외를 다룰 수 있다.
+- 자바스크립트 템플릿 엔진 Handlebars 를 사용할 수 있다.
 
 ## 작업
 
@@ -741,5 +744,193 @@ spring.mvc.view.suffix=.jsp
 
 - authorizeHttpRequests() 변경
   - `*.html` 요청에 대해 인증을 검사하지 않도록 변경: 정규표현식 패턴 매칭 사용
+- csrf() 설정
+  - Cookie 로 CSRF 토큰 값을 주고 받을 수 있게 설정
+- formLogin() 설정
+  - loginPage() 변경: 로그인 폼 페이지 변경
+    - failureForwardUrl() 추가: 로그인 실패 처리 추가
+- logout() 설정
+  - logoutSuccessUrl() 삭제: 로그아웃 후에 포워딩 페이지 제거
+  - logoutSuccessHandler() 추가: 로그아웃 결과를 클라이언트에게 직접 출력
 
 ### 3. HTML 페이지 변경
+
+- /home.html 변경
+  - /header.html 변경
+  - /js/common.js 추가
+- /auth/login-form.html 변경
+  - /js/common.js 변경
+- /board/list.html 변경
+- /board/detail.html 변경
+- /board/form.html 변경
+
+
+### 4. 페이지 컨트롤러 변경
+
+- AuthController 변경
+- BoardController 변경
+
+### 5. 예외 상황 처리 컨트롤러 추가
+
+- ErrorController 구현체 생성
+  - CustomErrorController 클래스 추가
+
+# 18. Backend와 Frontend를 분리하기
+
+## 학습목표
+
+- Cross-Domain 간에 AJAX 요청이 가능하게 설정할 수 있다.
+- Nodejs 에서 live-server 모듈을 사용하여 개발용 웹서버를 구동할 수 있다.
+
+## 작업
+
+### 1 프론트엔드 프로젝트 디렉토리 생성
+
+```bash
+$ mkdir myproject-frontend 
+$ cd myproject-frontend
+$ mkdir app
+```
+
+### 2 프론트엔드 관련 파일을 복사
+
+- `myproject/app/src/main/resources/static/` 폴더의 파일을 `myproject-frontend/app/` 폴더로 복사해온다.
+
+### 3. 개발용 웹서버 준비
+
+- 노드 프로젝트 설정 파일(package.json) 준비
+  - `package.json` : node 프로젝트 관련 정보나 의존 라이브러리 정보를 포함하고 있다.
+```bash
+$ npm init -y 
+```
+
+- 개발용 웹서버 노드 모듈 설치
+```bash
+$ npm install live-server --save-dev
+```
+
+### 4 live-server 설정 및 실행
+
+#### 4.1 직접 실행
+
+- 기본 실행
+  - 포트번호: 8080
+  - 자동으로 웹브라우저 실행되어서 localhost:8080/ 페이지를 요청한다.
+```bash
+$ npx live-server
+```
+
+- 포트번호 변경
+- 자동으로 웹브라우저 띄우지 않기
+```bash
+$ npx live-server --port=3000 --no-browser
+```
+
+#### 4.2 npm 으로 live-server를 실행하기
+
+- package.json 변경
+  - npm 으로 live-server를 실행할 수 있도록 설정한다.
+  - gradle로 Spring Boot를 실행할 때 `gradle bootRun` 명령을 실행하는 것과 유사한 방법이다.
+```json
+{
+  ...
+  "script": {
+    "start": "live-server --port=3000 --no-browser"
+  },
+  ...
+}
+```
+- npm 실행
+  - package.json 설정에서 `scripts` 항목 안에 `start` 프로퍼티 설정된 명령을 실행한다.
+```bash
+$ npm run start
+```
+
+### 5 Spring Security CORS 설정
+
+- CORS(Cross-Origin Resource Sharing) 설정
+  - SecurityConfig 변경
+    - cors() 추가
+    - CorsConfigurationSource 객체 준비
+      - CorsConfiguration 객체를 통해 CORS 설정
+      - UrlBasedCorsConfigurationSource 객체를 이용하여 요청 검증
+
+### 6 credential 설정
+
+Cross-Domain 간에는 쿠키, 세션, HTTP 인증 헤더를 전송할 수 없다. CORS를 수행하려면 허용해야 한다.
+
+- 서버측 설정
+  - CorsConfiguration 설정할 때,
+    - configuration.setAllowCredentials(true)
+- 클라이언트측 설정
+  - AJAX 요청 시 credential을 true로 설정해야 한다.
+    - xhr.withCredentials = true;
+
+
+# 19. JWT 인증 적용하기
+
+## 학습목표
+
+- JWT 인증 원리를 이해하고 구성할 수 있다.
+- HandlerMethodArgumentResolver의 구동 원리를 이해하고 사용할 수 있다.
+
+## 작업
+
+### 1 JWT 관련 의존 라이브러리 추가
+
+- `build.gradle` 변경
+  - `implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'` 추가
+  -
+### 2 RSA 키 쌍 준비
+
+JWT 토큰을 암호화하거나 암호해제할 때 사용할 RSA 키(공개키와 개인키)를 준비한다.
+
+- `RSAKeyGenerator` 생성
+  - `private.pem`, `public.pem` 파일 생성
+  - `src/main/resources` 폴더로 옮긴다.
+    - 파일을 찾기 쉽도록 CLASSPATH 경로에 둔다.
+
+### 3 JWT 인코더와 디코더 객체 준비
+
+JWT 토큰을 암호화하거나 암호 해제하는 일을 한다.
+
+- application.properties 변경
+  - 자바 코드에서 찾기 쉽도록 pem 파일의 경로를 등록한다.
+  - `jwt.private.key=classpath:private.pem`
+  - `jwt.public.key=classpath:public.pem`
+- SpringSecurity 변경
+  - RSA 파일의 데이터를 필드로 읽어 온다.
+    - RSAPrivateKey, RSAPublicKey 필드 추가
+  - JwtEncoder/JwtDecoder 생성
+  - OAuth2 인증 필터 설정
+    - oauth2ResourceServer() 추가
+  - 세션과 쿠키를 이용하지 않기(Stateless) 때문에 이와 관련된 설정을 제거한다.
+    - logout() 제거
+    - csrf().disable() 변경
+- AuthController 변경
+  - success() 변경
+    - 로그인 회원 정보를 JWT 토큰에 담아서 클라이언트로 전달한다.
+
+### 4 웹 페이지 변경
+
+- login-form.html 변경
+  - 서버에서 받은 JWT 토큰을 sessionStorage에 보관한다.
+- /js/common.js 변경
+  - JWT 토큰 값을 글로벌 변수(__jwtToken)에 저장해 둔다.
+  - getUserInfo() 메서드에서 서버에 요청할 때 JWT 토큰 값을 Authorization 헤더로 보낸다.
+- AuthController 변경
+  - userInfo() 변경
+    - JWT 토큰에서 사용자 정보를 추출하여 리턴한다.
+- BoardController 변경
+  - 세션이 아니라 JWT 에서 로그인 사용자 정보를 추출하도록 변경
+  - 게시글 관련 페이지 변경
+    - 요청할 때 JWT 토큰을 포함하기
+
+### 5 파라미터로 JWT에서 추출한 사용자 정보를 받기
+
+- @LoginUser 애노테이션 생성
+- HandlerMethodArgumentResolver 구현체 생성
+  - LoginUserArgumentResolver 클래스 생성
+- App 클래스 변경
+  - WebMvcConfigurer 구현
+  - addArgumentResolvers() 추가
